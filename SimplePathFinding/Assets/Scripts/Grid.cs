@@ -4,13 +4,13 @@ using System.Collections;
 public class Grid : MonoBehaviour {
 
     [SerializeField]
-    private int gridSizeX, gridSizeY = 20;
+    private int gridSizeX = 20, gridSizeY = 20;
     [SerializeField]
     private float nodeDiameter = 1.0f; 
     [SerializeField]
     private Vector3 gridLBCorner;
     [SerializeField]
-    private bool displayGridGizmos;
+    private bool displayGridGizmos = true;
     [SerializeField]
     private LayerMask unwalkableMask;
 
