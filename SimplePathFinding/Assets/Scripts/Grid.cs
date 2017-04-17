@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class Grid : MonoBehaviour {
 
@@ -19,18 +19,27 @@ public class Grid : MonoBehaviour {
     private float unWalkableSphereRadius = 0.95f;
     private float nodeRadius;
 
+    public int MaxNodes
+    {
+        get
+        {
+            return gridSizeX * gridSizeY;
+        }
+    }
+
+    public float NodeDiameter
+    {
+        get
+        {
+            return nodeDiameter;
+        }
+    }
+
     void Awake()
     {
         nodeRadius = nodeDiameter / 2;
-    }
-
-    void Start () {
         CreateGrid();
-	}
-	
-	void Update () {
-	
-	}
+    }
 
     public void CreateGrid()
     {
@@ -50,6 +59,47 @@ public class Grid : MonoBehaviour {
 
     }
 
+    public List<Node> GetNeighbours(Node node)
+    {
+        List<Node> neighbours = new List<Node>();
+        for (int x = node.gridX - 1; x <= node.gridX + 1; x++)
+        {
+            for (int y = node.gridY - 1; y <= node.gridY + 1; y++)
+            {
+                if (x == node.gridX && y == node.gridY)
+                {
+                    continue;
+                }
+
+                Node n = GetNode(x, y);
+                if (x >= 0 && y >= 0 && x < gridSizeX  && y < gridSizeY)
+                {
+                    neighbours.Add(grid[x, y]);
+                }
+            }
+        }
+
+        return neighbours;
+    }
+
+    public Node NodeFromWorldPoint(Vector3 worldPosition)
+    {
+        int x = Mathf.FloorToInt(worldPosition.x - gridLBCorner.x / (nodeRadius * 2));
+        int y = Mathf.FloorToInt(worldPosition.z - gridLBCorner.z / (nodeRadius * 2));
+
+        return GetNode(x, y);
+    }
+
+    public Node GetNode(int x, int y)
+    {
+        if (x < gridSizeX && y < gridSizeY && y >= 0 && x >= 0)
+        {
+            return grid[x, y];
+        }
+
+        return null;
+    }
+
     void OnDrawGizmos()
     {
         if (grid != null && displayGridGizmos)
@@ -62,7 +112,7 @@ public class Grid : MonoBehaviour {
             foreach (Node n in grid)
             {
                 float nodeSize = (nodeDiameter - 0.1f);
-                Gizmos.color = (n.isPassable) ? Color.white : Color.red;
+                Gizmos.color = (n.isPassable) ? Color.white : Color.black;
                 Gizmos.DrawCube(n.worldPosition + Vector3.up * nodeSize / 2,
                                 Vector3.one * nodeSize);
             }

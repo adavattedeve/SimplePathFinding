@@ -2,7 +2,7 @@
 
 public class Node : IHeapItem<Node>
 {
-
+    public Node parent;
     public Vector3 worldPosition;
 
     public int gridX, gridY;

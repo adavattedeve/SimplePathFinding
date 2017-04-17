@@ -2,8 +2,16 @@
 
 public class BinaryHeap<T> where T : IHeapItem<T>  {
 
-    private T[] items;
+    public T[] items;
     private int currentItemCount;
+
+    public int Count
+    {
+        get
+        {
+            return currentItemCount;
+        }
+    }
 
     public BinaryHeap(int maxHeapSize)
     {
@@ -24,31 +32,21 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
         currentItemCount = 0;
     }
 
-    public T RemoveFirst()
+    public T First()
     {
         T firstItem = items[0];
         currentItemCount--;
         items[0] = items[currentItemCount];
         items[0].HeapIndex = 0;
-
         SortDown(items[0]);
 
         return firstItem;
     }
-    /*
+
     public void UpdateItem(T item)
     {
         SortUp(item);
-    }*/
-
-    public int Count
-    {
-        get
-        {
-            return currentItemCount;
-        }
     }
-
 
     public bool Contains(T item)
     {
@@ -96,12 +94,11 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
     /// <param name="item"> Item to be sorted </param>
     void SortUp(T item)
     {
-        int parentIndex = (item.HeapIndex - 1) / 2;
-
-        while (parentIndex > 0)
+        while (true)
         {
-            parentIndex = (item.HeapIndex - 1) / 2;       
+            int parentIndex = (item.HeapIndex - 1) / 2;    
             T parentItem = items[parentIndex];
+
             if (item.CompareTo(parentItem) < 0)
             {
                 Swap(item, parentItem);
@@ -109,7 +106,11 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
             {
                 return;
             }
-            
+
+            if (parentIndex <= 0)
+            {
+                return;
+            }
         }
     }
 

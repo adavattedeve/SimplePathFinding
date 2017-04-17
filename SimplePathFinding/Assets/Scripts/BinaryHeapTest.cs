@@ -5,7 +5,7 @@ public class BinaryHeapTest : MonoBehaviour {
     [SerializeField]
     private int itemCount = 1000;
 
-    private int valueRange = 500;
+    private int valueRange = 100;
 
     void Awake () {
         BinaryHeap<TestNode> binaryHeap = new BinaryHeap<TestNode>(itemCount);
@@ -18,12 +18,13 @@ public class BinaryHeapTest : MonoBehaviour {
 
     private bool isInOrder(BinaryHeap<TestNode> binaryHeap)
     {
-        int lastValue = binaryHeap.RemoveFirst().Value;
+        int lastValue = binaryHeap.First().Value;
         while (binaryHeap.Count > 0)
         {
-            int newValue = binaryHeap.RemoveFirst().Value;
+            int newValue = binaryHeap.First().Value;
             if (newValue < lastValue)
                 return false;
+            lastValue = newValue;
         }
         
         return true;
@@ -46,7 +47,7 @@ public class BinaryHeapTest : MonoBehaviour {
             }
         }
 
-        public int Value {
+       public int Value {
             get
             {
                 return value;
