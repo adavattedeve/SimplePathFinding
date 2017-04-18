@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System;
 
-public class PathFinding : MonoBehaviour {
+public class Pathfinding : MonoBehaviour {
 
     private Grid grid;
 
@@ -17,9 +17,9 @@ public class PathFinding : MonoBehaviour {
         grid = GetComponent<Grid>();
     }
 
-    public Node[] FindPath(Vector3 start, Vector3 target)
+    public Node[] FindPath(Vector3 start, Vector3 target, IPathfindingListener pfListener = null)
     {
-
+        bool isPFListened = pfListener != null;
         bool pathSuccess = false;
 
         startNode = grid.NodeFromWorldPoint(start);
@@ -30,10 +30,16 @@ public class PathFinding : MonoBehaviour {
             print("Invalid start node");
             return null;
         }
+
         if (targetNode == null || !targetNode.isPassable)
         {
             print("Invalid target node");
             return null;
+        }
+
+        if (isPFListened)
+        {
+            pfListener.OnStart(startNode, targetNode);
         }
 
         openSet = new BinaryHeap<Node>(grid.MaxNodes);
@@ -54,8 +60,13 @@ public class PathFinding : MonoBehaviour {
                 break;
             }
 
-            List<Node> neighbours = grid.GetNeighbours(currentNode);
+            HashSet<Node> newOpenNodes = null; //This is used for PathfindingListener to gather step data
+            if (isPFListened)
+            {
+                newOpenNodes = new HashSet<Node>();
+            }
 
+            List<Node> neighbours = grid.GetNeighbours(currentNode);
             for (int i = 0; i < neighbours.Count; ++i)
             {
                 if (!neighbours[i].isPassable || closedSet.Contains(neighbours[i]))
@@ -78,18 +89,32 @@ public class PathFinding : MonoBehaviour {
                     {
                         openSet.UpdateItem(neighbours[i]);
                     }
+
+                    if (isPFListened)
+                    {
+                        newOpenNodes.Add(neighbours[i]);
+                    }
                 }
             }
-        }
 
+            if (isPFListened)
+            {
+                pfListener.OnCurrentNodeChange(currentNode, newOpenNodes);
+            }
+
+        }
+        Node[] path = null;
         if (pathSuccess)
         {
-            return RetracePath(startNode, targetNode);
-        } else
-        {
-            print("No valid path found");
-            return null;
+            path = RetracePath(startNode, targetNode);
         }
+
+        if (isPFListened)
+        {
+            pfListener.OnPathFound(path);
+        }
+
+        return path;
     }
 
     Node[] RetracePath(Node startNode, Node endNode)

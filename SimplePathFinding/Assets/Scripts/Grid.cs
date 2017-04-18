@@ -72,9 +72,10 @@ public class Grid : MonoBehaviour {
                 }
 
                 Node n = GetNode(x, y);
-                if (x >= 0 && y >= 0 && x < gridSizeX  && y < gridSizeY)
+                if (n != null)
                 {
                     neighbours.Add(grid[x, y]);
+
                 }
             }
         }
