@@ -15,14 +15,15 @@ public class PathfindingTest : MonoBehaviour {
     {
         pf = GetComponent<Pathfinding>();
         pfVisualizer = GetComponent<PathfindingVisualizer>();
-    }
-
-    void Update()
-    {
         if (start != null && target != null)
         {
             path = pf.FindPath(start.position, target.position, pfVisualizer);
         }
+    }
+
+    void Update()
+    {
+        
     }
 
 }

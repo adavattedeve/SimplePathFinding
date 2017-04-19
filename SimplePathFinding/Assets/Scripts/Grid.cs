@@ -35,6 +35,22 @@ public class Grid : MonoBehaviour {
         }
     }
 
+    public int GridSizeX
+    {
+        get
+        {
+            return gridSizeX;
+        }
+    }
+
+    public int GridSizeY
+    {
+        get
+        {
+            return gridSizeY;
+        }
+    }
+
     void Awake()
     {
         nodeRadius = nodeDiameter / 2;
