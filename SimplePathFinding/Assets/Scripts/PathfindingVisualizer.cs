@@ -33,6 +33,7 @@ public class PathfindingVisualizer : MonoBehaviour, IPathfindingListener {
         grid = GetComponent<Grid>();
         //Create grid game object for visualization
         GameObject gridGO = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        gridGO.name = "GridGameObject";
         int tilesInPlane = 10;
         float edgeWidthInTexture = 0.1f;
         float baseScaleX = grid.GridSizeX / tilesInPlane;
@@ -135,7 +136,11 @@ public class PathfindingVisualizer : MonoBehaviour, IPathfindingListener {
             ++pfStepIndex;
             yield return new WaitForSeconds(stepTime);
         }
-        currentTile.Material = closedSetMat;
+
+        if (currentTile != null)
+        {
+            currentTile.Material = closedSetMat;
+        }
         StartCoroutine(VisualizePath());
     }
 
