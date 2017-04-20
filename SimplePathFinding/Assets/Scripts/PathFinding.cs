@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System;
 
 public class Pathfinding : MonoBehaviour {
+    [SerializeField]
+    private int heuristicWeight = 1;
 
     private Grid grid;
 
@@ -17,6 +19,13 @@ public class Pathfinding : MonoBehaviour {
         grid = GetComponent<Grid>();
     }
 
+    /// <summary>
+    /// Finds shortest path from start position to target position. 
+    /// </summary>
+    /// <param name="start"> Start location in world coordinates </param>
+    /// <param name="target"> Target location in world coordinates </param>
+    /// <param name="pfListener"> Lets us send pathfinding data every step. Used for visualization </param>
+    /// <returns> Array of nodes which are the path from start to target. Returns null if path is not found </returns>
     public Node[] FindPath(Vector3 start, Vector3 target, IPathfindingListener pfListener = null)
     {
         bool isPFListened = pfListener != null;
@@ -79,7 +88,7 @@ public class Pathfinding : MonoBehaviour {
                 if (newMovementCostToNeighbour < neighbours[i].gCost || !openSet.Contains(neighbours[i]))
                 {
                     neighbours[i].gCost = newMovementCostToNeighbour;
-                    neighbours[i].hCost = GetDistance(neighbours[i], targetNode) * 1;//GetDistance(neighbours[i], targetNode);
+                    neighbours[i].hCost = GetDistance(neighbours[i], targetNode) * heuristicWeight;
                     neighbours[i].parent = currentNode;
 
                     if (!openSet.Contains(neighbours[i]))
@@ -87,7 +96,7 @@ public class Pathfinding : MonoBehaviour {
                         openSet.Add(neighbours[i]);
                     } else
                     {
-                        openSet.UpdateItem(neighbours[i]);
+                        openSet.SortUp(neighbours[i]); //Node's cost is lowered so it has to be sorted up in the heap.
                     }
 
                     if (isPFListened)
@@ -117,7 +126,13 @@ public class Pathfinding : MonoBehaviour {
         return path;
     }
 
-    Node[] RetracePath(Node startNode, Node endNode)
+    /// <summary>
+    /// Forms the path by retracing from endNode to startNode
+    /// </summary>
+    /// <param name="startNode"> Path's starting node </param>
+    /// <param name="endNode"> Path's ending node </param>
+    /// <returns> Path that is formed through retracing </returns>
+    private Node[] RetracePath(Node startNode, Node endNode)
     {
         List<Node> path = new List<Node>();
 
@@ -132,16 +147,19 @@ public class Pathfinding : MonoBehaviour {
         Node[] wayPoints = path.ToArray();
         Array.Reverse(wayPoints);
         finalPath = wayPoints;
-        return wayPoints;
 
+        return wayPoints;
     }
 
     /// <summary>
-    /// 
+    /// Returns distance between given nodes. Calculated distance is in it's 
+    /// own unit system where:
+    /// 10 is distance between two nodes that are side by side and
+    /// 14 is distance between two nodes that are adjacent diagonally.
     /// </summary>
-    /// <param name="nodeA"></param>
-    /// <param name="nodeB"></param>
-    /// <returns></returns>
+    /// <param name="nodeA"> From </param>
+    /// <param name="nodeB"> To </param>
+    /// <returns> Distance between given nodes. </returns>
 	private int GetDistance(Node nodeA, Node nodeB)
     {
         int dX = Math.Abs(nodeA.gridX - nodeB.gridX);
@@ -149,6 +167,9 @@ public class Pathfinding : MonoBehaviour {
         return 14 * Math.Min(dX, dY) + 10 * Math.Abs(dX - dY);
     }
 
+    /// <summary>
+    /// Draws latest calculated path and other data used in pathfinding process.
+    /// </summary>
     void OnDrawGizmos()
     {
         if (startNode == null || targetNode == null)

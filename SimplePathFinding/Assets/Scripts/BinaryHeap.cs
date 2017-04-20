@@ -13,11 +13,19 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
         }
     }
 
+    /// <summary>
+    /// Constructor for the heap
+    /// </summary>
+    /// <param name="maxHeapSize"> Maximum count of items that the heap is able to contain </param>
     public BinaryHeap(int maxHeapSize)
     {
         items = new T[maxHeapSize];
     }
 
+    /// <summary>
+    /// Adds item to the heap
+    /// </summary>
+    /// <param name="item"> Item to be added </param>
     public void Add(T item)
     {
         item.HeapIndex = currentItemCount;
@@ -27,11 +35,18 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
         SortUp(item);
     }
 
+    /// <summary>
+    /// Clears the heap
+    /// </summary>
     public void Clear()
     {
         currentItemCount = 0;
     }
 
+    /// <summary>
+    /// Removes first item from the heap and returns it
+    /// </summary>
+    /// <returns> Item that has smallest value in the heap </returns>
     public T First()
     {
         T firstItem = items[0];
@@ -43,11 +58,11 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
         return firstItem;
     }
 
-    public void UpdateItem(T item)
-    {
-        SortUp(item);
-    }
-
+    /// <summary>
+    /// Check if heap contains item
+    /// </summary>
+    /// <param name="item"> Item to be checked </param>
+    /// <returns> Returns true if item is found </returns>
     public bool Contains(T item)
     {
         return Equals(items[item.HeapIndex], item);
@@ -57,7 +72,7 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
     /// Sorts item down until there aren't any child items left or child items are greater in value 
     /// </summary>
     /// <param name="item"> Item to be sorted </param>
-    void SortDown(T item)
+    public void SortDown(T item)
     {
         //Loop until there aren't any child items left or child items are greater in value
         while (true)
@@ -92,7 +107,7 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
     /// Sorts item up until its index is 0 or its parent item is lesser in value
     /// </summary>
     /// <param name="item"> Item to be sorted </param>
-    void SortUp(T item)
+    public void SortUp(T item)
     {
         while (true)
         {
@@ -114,6 +129,11 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
         }
     }
 
+    /// <summary>
+    /// Swaps places of itemA and itemB
+    /// </summary>
+    /// <param name="itemA"> Item to be swapped </param>
+    /// <param name="itemB"> Other item to be swapped </param>
     void Swap(T itemA, T itemB)
     {
         items[itemA.HeapIndex] = itemB;
@@ -124,6 +144,10 @@ public class BinaryHeap<T> where T : IHeapItem<T>  {
     }
 }
 
+/// <summary>
+/// Interface for heap items
+/// </summary>
+/// <typeparam name="T"> Class that implements this interface </typeparam>
 public interface IHeapItem<T> : IComparable<T>
 {
     int HeapIndex

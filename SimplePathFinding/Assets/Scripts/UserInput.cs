@@ -23,8 +23,16 @@ public class UserInput : MonoBehaviour {
     }
 
     void Update() {
-	
-        if (Input.GetMouseButton(0))
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            Node newStart = GetNodeFromMouse();
+            if (newStart != null)
+            {
+                start = newStart;
+                CallPathFinding();
+            }
+        } else if (Input.GetMouseButton(0))
         {
             Node newStart = GetNodeFromMouse();
             if (newStart != null && newStart != start)
@@ -34,7 +42,17 @@ public class UserInput : MonoBehaviour {
             }
         }
 
-        if (Input.GetMouseButton(1))
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            Node newTarget = GetNodeFromMouse();
+            if (newTarget != null)
+            {
+                target = newTarget;
+                CallPathFinding();
+            }
+        }
+        else if (Input.GetMouseButton(1))
         {
             Node newTarget = GetNodeFromMouse();
             if (newTarget != null && newTarget != target)
@@ -45,14 +63,24 @@ public class UserInput : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Calls pathfinding if start and target nodes are valid
+    /// </summary>
     private void CallPathFinding()
     {
-        if (start != null && target != null)
+        if (start != null && target != null && start.isPassable && target.isPassable)
         {
+            float pfStarted = Time.realtimeSinceStartup;
             pf.FindPath(start.worldPosition, target.worldPosition, pfVisualizer);
+            float totalTime = (Time.realtimeSinceStartup - pfStarted) * 100;
+            print("Time to find path: " + totalTime + " ms");
         }
     }
 
+    /// <summary>
+    /// Get node from mouse cursor position
+    /// </summary>
+    /// <returns> Node which is under mouse cursor. If there is none, return null </returns>
     private Node GetNodeFromMouse()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

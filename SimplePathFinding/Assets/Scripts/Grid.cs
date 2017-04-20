@@ -4,19 +4,16 @@ using System.Collections.Generic;
 public class Grid : MonoBehaviour {
 
     [SerializeField]
-    private int gridSizeX = 20, gridSizeY = 20;
+    private Texture2D gridLayout;
+    private int gridSizeX, gridSizeY;
     [SerializeField]
     private float nodeDiameter = 1.0f; 
     [SerializeField]
-    private Vector3 gridLBCorner;
-    [SerializeField]
     private bool displayGridGizmos = true;
-    [SerializeField]
-    private LayerMask unwalkableMask;
 
     private Node[,] grid;
+    private Vector3 gridPosCenter = Vector3.zero;
 
-    private float unWalkableSphereRadius = 0.95f;
     private float nodeRadius;
 
     public int MaxNodes
@@ -51,30 +48,56 @@ public class Grid : MonoBehaviour {
         }
     }
 
+    public Vector3 GridPositionCenter
+    {
+        get
+        {
+            return gridPosCenter;
+        }
+    }
+
     void Awake()
     {
         nodeRadius = nodeDiameter / 2;
-        CreateGrid();
+        CreateGrid(gridLayout);
     }
 
-    public void CreateGrid()
+    /// <summary>
+    /// Create new grid from texture where white pixels are passable nodes and other unpassable.
+    /// </summary>
+    /// <param name="layout"></param>
+    public void CreateGrid(Texture2D layout)
     {
+        Color[] pixels = layout.GetPixels();
+
+        gridSizeX = layout.width;
+        gridSizeY = layout.height;
+
         grid = new Node[gridSizeX, gridSizeY];
         for (int y = 0; y < gridSizeY; y++)
         {
             for (int x = 0; x < gridSizeX; x++)
             {
-                Vector3 worldPoint = gridLBCorner;
-                worldPoint += Vector3.right * (x * nodeDiameter + nodeRadius) + 
-                              Vector3.forward * (y * nodeDiameter + nodeRadius);
+                Vector3 worldPoint = gridPosCenter;
+                worldPoint += Vector3.right * ((x - gridSizeX / 2) * nodeDiameter + nodeRadius) +
+                              Vector3.forward * ((y - gridSizeY / 2) * nodeDiameter + nodeRadius);
 
-                bool isPassable = !(Physics.CheckSphere(worldPoint, nodeRadius * unWalkableSphereRadius, unwalkableMask));
+                bool isPassable = 
+                    pixels[y * gridSizeX + x].r > 0.9f &&
+                    pixels[y * gridSizeX + x].g > 0.9f &&
+                    pixels[y * gridSizeX + x].b > 0.9f;
+
                 grid[x, y] = new Node(x, y, worldPoint, isPassable);
             }
         }
 
     }
 
+    /// <summary>
+    /// Searches for all the neighbour nodes of the given node from grid
+    /// </summary>
+    /// <param name="node"> Node that's neighbours will be searched </param>
+    /// <returns> Returns list of all the found neighbours </returns>
     public List<Node> GetNeighbours(Node node)
     {
         List<Node> neighbours = new List<Node>();
@@ -91,7 +114,6 @@ public class Grid : MonoBehaviour {
                 if (n != null)
                 {
                     neighbours.Add(grid[x, y]);
-
                 }
             }
         }
@@ -99,14 +121,26 @@ public class Grid : MonoBehaviour {
         return neighbours;
     }
 
+    /// <summary>
+    /// Returns node if it is found from given world coordinates
+    /// </summary>
+    /// <param name="worldPosition"> World coordinates </param>
+    /// <returns> Returns node if it is found from given coordinates. Else returns null </returns>
     public Node NodeFromWorldPoint(Vector3 worldPosition)
     {
-        int x = Mathf.FloorToInt(worldPosition.x - gridLBCorner.x / (nodeRadius * 2));
-        int y = Mathf.FloorToInt(worldPosition.z - gridLBCorner.z / (nodeRadius * 2));
+        Vector3 translatedPos = worldPosition - gridPosCenter;
+        int x = Mathf.FloorToInt(translatedPos.x / nodeDiameter + (float)gridSizeX / 2);
+        int y = Mathf.FloorToInt(translatedPos.z / nodeDiameter + (float)gridSizeY / 2);
 
         return GetNode(x, y);
     }
 
+    /// <summary>
+    /// Returns node from grid at x, y index
+    /// </summary>
+    /// <param name="x"> Index x </param>
+    /// <param name="y"> Index y </param>
+    /// <returns> Node from grid at x, y index. Return null if either or both indexes are out of range </returns>
     public Node GetNode(int x, int y)
     {
         if (x < gridSizeX && y < gridSizeY && y >= 0 && x >= 0)
@@ -117,15 +151,17 @@ public class Grid : MonoBehaviour {
         return null;
     }
 
+    /// <summary>
+    /// Draws grid with gizmos if displayGridGizmos is true
+    /// </summary>
     void OnDrawGizmos()
     {
         if (grid != null && displayGridGizmos)
         {
             Gizmos.color = Color.blue;
             Vector3 gridSize = new Vector3(gridSizeX * nodeDiameter, 1, gridSizeY * nodeDiameter);
-            Vector3 gridCenter = gridLBCorner + gridSize / 2;
 
-            Gizmos.DrawWireCube(gridCenter, gridSize);
+            Gizmos.DrawWireCube(gridPosCenter, gridSize);
             foreach (Node n in grid)
             {
                 float nodeSize = (nodeDiameter - 0.1f);
