@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 public class PathfindingVisualizer : MonoBehaviour, IPathfindingListener {
 
+    private bool animate = true;
+
     [SerializeField]
     private float stepTime = 0.05f;
-    [SerializeField]
-    private bool animate = true;
 
     private GameObject tilePrefab;
     private Material gridMat;
@@ -63,9 +63,15 @@ public class PathfindingVisualizer : MonoBehaviour, IPathfindingListener {
 
     }
 
+    
     void Start()
     {
         CreateGridVisualization();
+    }
+
+    public void SetAnimate(bool value)
+    {
+        animate = value;
     }
 
     #region IPathfindingListener methods

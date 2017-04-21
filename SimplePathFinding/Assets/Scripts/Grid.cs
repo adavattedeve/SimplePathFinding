@@ -7,13 +7,12 @@ public class Grid : MonoBehaviour {
     private Texture2D gridLayout;
     private int gridSizeX, gridSizeY;
     [SerializeField]
-    private float nodeDiameter = 1.0f; 
-    [SerializeField]
     private bool displayGridGizmos = true;
 
     private Node[,] grid;
     private Vector3 gridPosCenter = Vector3.zero;
 
+    private float nodeDiameter = 1.0f;
     private float nodeRadius;
 
     public int MaxNodes
