@@ -1,6 +1,6 @@
 # Simple pathfinding
 
-![alt text](https://github.com/adavattedeve/SimplePathFinding/edit/master/Pathfinding.gif "pathfinding")
+![alt text](https://github.com/adavattedeve/SimplePathFinding/blob/master/Pathfinding.gif "pathfinding")
 
 # Container for open set
 
